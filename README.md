@@ -113,5 +113,4 @@ Honest limitations, because a risk professional who oversells a model is a liabi
 - **EVT excluded** — Extreme Value Theory tail-fitting was scoped out as beyond the level of this project; noted as a natural extension.
 
 ---
-
-*Built as part of a six-project quantitative finance portfolio. Data sourced from public APIs (Tiingo, FRED). This is a research and educational project, not investment advice.*
+ Data sourced from public APIs (Tiingo, FRED). This is a research and educational project, not investment advice.*
