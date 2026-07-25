@@ -1,0 +1,17 @@
+{
+  "prices_raw.csv": "Daily adjusted closing prices from Tiingo for all 18 assets. Index=date, columns=tickers, units=USD.",
+  "daily_log_returns.csv": "Daily log returns: ln(P_t/P_{t-1}). Index=date, columns=tickers.",
+  "monthly_returns.csv": "Monthly total returns compounded from daily. Index=month-end date.",
+  "portfolio_daily_returns.csv": "Equal-weight portfolio daily log return. Weight per asset = 0.0556.",
+  "portfolio_monthly_returns.csv": "Equal-weight portfolio monthly total return.",
+  "portfolio_drawdown.csv": "Drawdown series: (cum_return - rolling_max) / rolling_max.",
+  "portfolio_ewma_vol.csv": "Portfolio EWMA annualised vol series. \u03bb=0.94.",
+  "cov_static_latest.csv": "Latest 252-day rolling sample covariance, annualised.",
+  "cov_ewma_latest.csv": "EWMA covariance matrix. \u03bb=0.94. Annualised.",
+  "macro_series.csv": "Six FRED macro series + yield curve inversion flag.",
+  "macro_stationarity.csv": "ADF test results. Non-stationary series must be differenced in Phase 4.",
+  "return_diagnostics.csv": "Per-asset: mean, std, skewness, kurtosis, JB test.",
+  "data_quality_report.csv": "Per-asset: missing count, outlier count, zero-return count.",
+  "metadata.json": "All project parameters. Loaded by every phase.",
+  "data_dictionary.json": "This file."
+}

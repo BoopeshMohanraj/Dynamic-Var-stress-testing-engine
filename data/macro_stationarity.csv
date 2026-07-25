@@ -1,0 +1,7 @@
+series,adf_stat,p_value,is_stationary,lags_used
+FEDFUNDS,-1.0309,0.741822,False,24
+CPIAUCSL,0.914,0.99327,False,25
+DGS10,-0.2796,0.928342,False,2
+DGS2,-0.4285,0.905228,False,4
+BAMLC0A0CM,-3.7164,0.003889,True,25
+BAMLH0A0HYM2,-3.0292,0.03226,True,25

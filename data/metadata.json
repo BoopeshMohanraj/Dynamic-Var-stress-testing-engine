@@ -1,0 +1,156 @@
+{
+  "all_tickers": [
+    "AAPL",
+    "MSFT",
+    "JNJ",
+    "UNH",
+    "JPM",
+    "GS",
+    "XOM",
+    "CVX",
+    "AMZN",
+    "HD",
+    "PG",
+    "CAT",
+    "HON",
+    "NEE",
+    "META",
+    "TLT",
+    "GLD",
+    "UUP"
+  ],
+  "equity_list": [
+    "AAPL",
+    "MSFT",
+    "JNJ",
+    "UNH",
+    "JPM",
+    "GS",
+    "XOM",
+    "CVX",
+    "AMZN",
+    "HD",
+    "PG",
+    "CAT",
+    "HON",
+    "NEE",
+    "META"
+  ],
+  "cross_asset": [
+    "TLT",
+    "GLD",
+    "UUP"
+  ],
+  "equity_tickers_by_sector": {
+    "Technology": [
+      "AAPL",
+      "MSFT"
+    ],
+    "Healthcare": [
+      "JNJ",
+      "UNH"
+    ],
+    "Financials": [
+      "JPM",
+      "GS"
+    ],
+    "Energy": [
+      "XOM",
+      "CVX"
+    ],
+    "Consumer Discretionary": [
+      "AMZN",
+      "HD"
+    ],
+    "Consumer Staples": [
+      "PG"
+    ],
+    "Industrials": [
+      "CAT",
+      "HON"
+    ],
+    "Utilities": [
+      "NEE"
+    ],
+    "Communication": [
+      "META"
+    ]
+  },
+  "weights": [
+    0.05555555555555555,
+    0.05555555555555555,
+    0.05555555555555555,
+    0.05555555555555555,
+    0.05555555555555555,
+    0.05555555555555555,
+    0.05555555555555555,
+    0.05555555555555555,
+    0.05555555555555555,
+    0.05555555555555555,
+    0.05555555555555555,
+    0.05555555555555555,
+    0.05555555555555555,
+    0.05555555555555555,
+    0.05555555555555555,
+    0.05555555555555555,
+    0.05555555555555555,
+    0.05555555555555555
+  ],
+  "n_assets": 18,
+  "start_date": "2017-01-01",
+  "end_date": "2024-12-31",
+  "train_start": "2019-01-01",
+  "train_end": "2021-12-31",
+  "test_start": "2022-01-01",
+  "test_end": "2022-12-31",
+  "lambda_ewma": 0.94,
+  "ewma_half_life_days": 11,
+  "rolling_window": 252,
+  "conf_95": 0.95,
+  "conf_99": 0.99,
+  "conf_es": 0.975,
+  "outlier_sigma": 3.0,
+  "n_monte_carlo": 10000,
+  "random_seed": 42,
+  "garch_p": 1,
+  "garch_q": 1,
+  "tgarch_o": 1,
+  "max_position_wt": 0.2,
+  "max_sector_wt": 0.35,
+  "target_return_ann": 0.1,
+  "adv_window": 20,
+  "max_adv_pct": 0.1,
+  "port_vol_static_ann": 0.093176,
+  "port_vol_ewma_ann": 0.105923,
+  "max_drawdown": -0.311372,
+  "max_drawdown_date": "2020-03-23",
+  "yield_inversion_days": 579,
+  "n_outliers_total": 471,
+  "n_nonnormal_assets": 18,
+  "correlation_results": {
+    "Full sample (2017\u20132024)": {
+      "equity_tlt": -0.2064,
+      "equity_gld": 0.0901
+    },
+    "Pre-COVID calm (2019)": {
+      "equity_tlt": -0.4851,
+      "equity_gld": -0.2887
+    },
+    "COVID crash (Feb\u2013Apr 2020)": {
+      "equity_tlt": -0.4635,
+      "equity_gld": 0.2291
+    },
+    "Post-COVID rally (2021)": {
+      "equity_tlt": -0.2456,
+      "equity_gld": 0.1323
+    },
+    "2022 rate shock": {
+      "equity_tlt": 0.0692,
+      "equity_gld": 0.2592
+    },
+    "2023 recovery": {
+      "equity_tlt": 0.0997,
+      "equity_gld": 0.0152
+    }
+  }
+}
