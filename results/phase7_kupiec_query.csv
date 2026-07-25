@@ -1,0 +1,5 @@
+model,n_breaches,breach_rate_pct,LR_stat,p_value,pass_fail,vol_dynamics
+FHS-EWMA,12,4.8,0.026,0.8726,PASS,"EWMA λ=0.94, no mean reversion"
+FHS-GARCH,14,5.6,0.17,0.6799,PASS,"Symmetric GARCH, mean-reverting"
+FHS-T-GARCH,14,5.6,0.17,0.6799,PASS,"Asymmetric GJR-GARCH, leverage effect"
+Static HS-VaR,21,8.4,5.025,0.025,FAIL,Fixed historical window

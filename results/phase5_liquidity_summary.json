@@ -1,0 +1,15 @@
+{
+  "portfolio_value_assumed": 10000000,
+  "adv_window_days": 20,
+  "max_adv_pct": 0.1,
+  "avg_cs_spread_bps": 47.8222,
+  "normal_exit_cost": 23911.11,
+  "stress_exit_cost_3x": 71733.3,
+  "stress_cost_pct_portfolio": 0.717333,
+  "n_sizing_violations": 1,
+  "sizing_violation_tickers": [
+    "UUP"
+  ],
+  "amihud_ewma_corr": 0.8891,
+  "amihud_ewma_pval": 0.0
+}

@@ -1,0 +1,31 @@
+{
+  "r_squared": 0.486648,
+  "adj_r_squared": 0.463832,
+  "f_pvalue": 0.0,
+  "n_obs": 95,
+  "coefficients": {
+    "const": 1.332511,
+    "\u0394FFR": -2.855444,
+    "\u0394CPI": 0.687178,
+    "\u039410Y": -4.746923,
+    "\u0394IG_spread": -11.829827
+  },
+  "p_values": {
+    "const": 9e-06,
+    "\u0394FFR": 0.098266,
+    "\u0394CPI": 0.449005,
+    "\u039410Y": 0.000115,
+    "\u0394IG_spread": 0.0
+  },
+  "sensitivity_table": {
+    "\u039410Y +100bps": -4.7469,
+    "\u0394FFR +100bps": -2.8554,
+    "\u0394CPI +1%": 0.6872,
+    "\u0394IG +100bps": -11.8298,
+    "\u039410Y -100bps": 4.7469,
+    "\u0394FFR -100bps": 2.8554
+  },
+  "oos_cum_actual": -4.6458,
+  "oos_cum_pred": -7.8921,
+  "oos_direction_correct": true
+}

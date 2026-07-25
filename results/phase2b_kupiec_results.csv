@@ -1,0 +1,5 @@
+model,n_breaches,breach_rate,LR_stat,p_value,pass
+Static HS-VaR,21,0.08367,5.0247,0.024988,False
+FHS-EWMA,12,0.04781,0.0257,0.872558,True
+FHS-GARCH,14,0.05578,0.1703,0.679879,True
+FHS-T-GARCH,14,0.05578,0.1703,0.679879,True

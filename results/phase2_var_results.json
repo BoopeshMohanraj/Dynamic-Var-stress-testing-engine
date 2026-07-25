@@ -1,0 +1,20 @@
+{
+  "train_window": "2019-01-01 to 2021-12-31",
+  "test_window": "2022-01-01 to 2022-12-31",
+  "hs_var_95": 0.015073,
+  "hs_var_99": 0.034557,
+  "hs_es_975": 0.041579,
+  "param_var_95": 0.019073,
+  "param_var_99": 0.027325,
+  "param_es_975": 0.027464,
+  "mc_var_95": 0.019185,
+  "mc_var_99": 0.027025,
+  "mc_es_975": 0.02724,
+  "port_mu_daily": 0.00084511,
+  "port_sigma_daily": 0.01210928,
+  "breach_rate_95_hs": 0.0837,
+  "breach_rate_99_hs": 0.004,
+  "breach_rate_95_param": 0.0558,
+  "breach_rate_95_mc": 0.0558,
+  "n_test_days": 251
+}

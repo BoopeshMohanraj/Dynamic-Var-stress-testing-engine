@@ -1,0 +1,13 @@
+{
+  "ew_cvar_95": 19.0326,
+  "opt_cvar_95": 3.0262,
+  "tgarch_cvar_95": 3.0262,
+  "cvar_improvement_pct": 84.1,
+  "ew_2022_return": -11.1821,
+  "opt_2022_return": -15.4022,
+  "ew_2022_max_dd": -19.3123,
+  "opt_2022_max_dd": -17.0865,
+  "vol_ratio_tgarch": 1.0,
+  "n_scenarios": 10000,
+  "conf_level": 0.95
+}

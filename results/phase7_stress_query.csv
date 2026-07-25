@@ -1,0 +1,6 @@
+scenario_name,portfolio_pnl,pnl_times_var,tlt_contribution,gld_contribution,scenario_type
+Bear,-25.67,17.0,-1.111,0.278,forward
+COVID_Replay,-18.81,12.5,-16.45,-12.71,historical
+2022_Replay,-11.18,7.4,-16.45,-12.71,historical
+Base,6.94,-4.6,0.111,0.167,forward
+Bull,17.22,-11.4,0.444,0.222,forward

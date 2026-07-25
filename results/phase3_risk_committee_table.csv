@@ -1,0 +1,6 @@
+Scenario,Equity_Shock,Rate_Shock_bps,Portfolio_PnL,Portfolio_PnL_vs_VaR,TLT_contribution,GLD_contribution,Description
+Bear,-30%,+200bps,-25.67%,+17.0×VaR,-1.111%,+0.278%,2022-style aggressive tightening
+Base,+8%,+0bps,+6.94%,-4.6×VaR,+0.111%,+0.167%,"Moderate growth, rates flat"
+Bull,+20%,-50bps,+17.22%,-11.4×VaR,+0.444%,+0.222%,Rate cuts + spread compression
+COVID Replay,historical,N/A,-18.81%,+12.5×VaR,-16.45%,-12.71%,Feb–Apr 2020 COVID crash
+2022 Replay,historical,+237bps,-11.18%,+7.4×VaR,-16.45%,-12.71%,Full year 2022 rate shock
