@@ -1,8 +1,8 @@
 # Portfolio Risk, Stress Testing & Macro Scenario Engine
 
-**A production-style market-risk engine that measures portfolio risk, backtests it honestly, and stress-tests it against real historical shocks built in Python, deployed as a live interactive dashboard.**
+A market-risk engine that measures portfolio risk, backtests it honestly against out-of-sample data, and stress-tests it through real historical shocks. Built in Python and deployed as a live interactive dashboard.
 
-🔗 **[Live dashboard →](https://dynamic-var-stress-testing-engine-rk3qwtdff5nyyftrtqsfla.streamlit.app/)**
+**[Live dashboard](https://dynamic-var-stress-testing-engine-rk3qwtdff5nyyftrtqsfla.streamlit.app/)**
 
 *Boopesh Mohanraj*
 
@@ -10,83 +10,106 @@
 
 ## What this is
 
-A risk officer's core job is answering one question every morning: *"If the market moves against us this week, how much do we lose — and is our risk model even trustworthy right now?"* Most student risk projects compute a single Value-at-Risk number and stop there. The problem is that a VaR model calibrated on calm markets silently fails the moment volatility regime-shifts — which is exactly when you need it most.
+A risk officer's core job is to answer one question every morning: if the market moves against us this week, how much do we lose, and can I even trust the model telling me so? Most student risk projects compute a single Value-at-Risk number and stop. The deeper problem is that a VaR model calibrated on calm markets quietly fails the moment volatility regime-shifts, which is exactly the moment it needs to hold.
 
-This engine addresses that gap end to end. It runs an 18-asset multi-sector portfolio (15 equities across 9 GICS sectors + TLT, GLD, UUP as cross-asset diversifiers) over 2017–2024, and does four things a real risk desk does:
+This engine works that problem end to end. It runs an 18-position portfolio (15 single-name equities across 9 GICS sectors, plus TLT, GLD, and UUP as cross-asset ETF proxies) over 2017 to 2024, and does four things a real risk desk does:
 
-1. **Measures** risk three static ways (Historical, Parametric, Monte Carlo VaR) plus CVaR / Expected Shortfall at the Basel III FRTB standard.
+1. **Measures** risk three static ways (Historical, Parametric, Monte Carlo VaR), plus CVaR and Expected Shortfall at the Basel III FRTB standard.
 2. **Adapts** to volatility regimes using Filtered Historical Simulation on three conditional-volatility models (EWMA, GARCH, GJR-GARCH).
-3. **Validates** every model with formal Kupiec and Christoffersen backtests on genuinely out-of-sample data — and reports where models *fail*, not just where they pass.
-4. **Stress-tests** the portfolio against forward scenarios and replays of the March 2020 COVID crash and the 2022 rate shock.
+3. **Validates** every model with formal Kupiec and Christoffersen backtests on genuinely out-of-sample data, and reports where models fail rather than only where they pass.
+4. **Stress-tests** the portfolio against forward scenarios and against day-by-day replays of the March 2020 COVID crash and the 2022 rate shock.
 
-Everything is wired into a live 9-panel dashboard so the output is explorable, not just a static notebook.
+All of it feeds a live 9-panel dashboard, so the output is explorable rather than locked in a notebook.
 
 ---
 
 ## Key results
 
-All figures below are computed directly from the code in this repo and are reproduced live in the dashboard.
+Every figure below is computed from the code in this repo and reproduced live in the dashboard.
 
-**The central finding — static VaR fails through regime shifts; dynamic VaR survives.** Using a walk-forward design (calibrate on 2017–2020, test 2021; recalibrate on 2017–2021, test 2022), static Historical-Simulation VaR failed the Kupiec backtest in *both* out-of-sample years, while all three Filtered-Historical-Simulation models passed in both:
+### Static VaR fails through regime shifts; dynamic VaR holds
+
+Using a walk-forward design (calibrate on 2017 to 2020, test 2021; recalibrate on 2017 to 2021, test 2022), static Historical-Simulation VaR failed the Kupiec backtest in both out-of-sample years. All three Filtered-Historical-Simulation models passed in both:
 
 | Model | 2021 breach rate | 2022 breach rate | Kupiec result |
 |---|---|---|---|
-| Static HS-VaR | 1.6% | 9.2% | ❌ Fails both years |
-| FHS-EWMA | 6.0% | 5.6% | ✅ Passes both |
-| FHS-GARCH | 5.6% | 6.4% | ✅ Passes both |
-| FHS-GJR-GARCH | 6.0% | 7.2% | ✅ Passes both |
+| Static HS-VaR | 1.6% | 9.2% | Fails both years |
+| FHS-EWMA | 6.0% | 5.6% | Passes both |
+| FHS-GARCH | 5.6% | 6.4% | Passes both |
+| FHS-GJR-GARCH | 6.0% | 7.2% | Passes both |
 
-*(Target breach rate for a 95% VaR is 5%.)* The honest takeaway is not that one dynamic model dominates — EWMA happened to track the 5% target most closely in 2022, and GJR-GARCH ran slightly hot — but that **volatility-adaptive VaR stays statistically valid through a regime shift where static VaR breaks down.** That distinction is the entire point of the engine.
+The target breach rate for a 95% VaR is 5%. The honest reading is not that one dynamic model wins outright. EWMA tracked the target most closely in 2022, while GJR-GARCH ran hot. The point is that volatility-adaptive VaR stays statistically valid through a regime shift where static VaR breaks down.
 
-![Walk-forward Kupiec backtest across all four models](plots/phase8_01_kupiec_walkforward.png)
+![Walk-forward Kupiec backtest across all four models](figures/phase8_01_kupiec_walkforward.png)
 
-**The models work day by day, not just on average.** Plotting 2022's actual daily losses against all four VaR thresholds shows the dynamic models widening ahead of the drawdown while static VaR stays flat and gets breached repeatedly:
+A second backtest sharpens this. The Christoffersen independence test checks whether breaches cluster, since a model can have the right breach *count* yet still fail if all its misses bunch together in the crisis. In 2022, GARCH and EWMA produced independent breaches, but GJR-GARCH failed the independence test (p = 0.03) as its breaches clustered during the drawdown. So the model with the strongest theoretical story for equities was not the best-behaved one in this specific stress window. That is the reason to run more than one test.
 
-![2022 daily loss vs all four VaR models](plots/phase2b_02_var_timeseries_2022.png)
+### The models work day by day, not just on average
 
-**Diversification assumptions broke in 2022 — and the engine captures it.** The equity–bond (TLT) correlation, reliably negative for decades, flipped *positive* during the 2022 rate shock as stocks and bonds fell together. A risk model using a stable historical correlation would have understated portfolio risk precisely when it mattered:
+Plotting 2022's actual daily losses against all four VaR thresholds shows the dynamic models widening ahead of the drawdown while the static threshold stays flat and gets breached repeatedly.
 
-![Cross-asset correlation regime shift](plots/phase3_05_correlation_regimes.png)
+![2022 daily loss versus all four VaR models](figures/phase2b_02_var_timeseries_2022.png)
 
-**Conditional volatility models track the regimes.** EWMA, GARCH, and GJR-GARCH all spike through the COVID and 2022 stress windows, which is what lets the filtered VaR adapt:
+### Diversification assumptions broke in 2022, and the engine captures it
 
-![Conditional volatility models](plots/phase2b_01_cond_vol_training.png)
+The equity-to-bond (TLT) correlation, reliably negative for decades, flipped positive during the 2022 rate shock as stocks and bonds fell together. A risk model resting on a stable historical correlation would have understated portfolio risk at precisely the wrong time.
 
-**Mean-CVaR optimization cut tail risk sharply — with an honest caveat.** Implementing the Rockafellar–Uryasev linear program in `cvxpy` reduced in-sample 95% CVaR from **19.0% to 3.0%**. But the optimizer did this by concentrating into low-CVaR defensive assets (≈20% each into TLT, GLD, and the AAPL/UUP block), and that concentration *hurt* in the specific 2022 scenario: the CVaR-optimal portfolio returned **−15.4%** vs the equal-weight **−11.2%**, because long-duration Treasuries (TLT) were themselves a primary casualty of the rate shock. This is a textbook illustration of why a corner solution that minimizes a historical risk metric is not the same as a portfolio that survives the next specific shock — and why production mandates impose concentration limits.
+![Cross-asset correlation regime shift](figures/phase3_05_correlation_regimes.png)
 
-![CVaR-optimal vs equal weights](plots/phase6_01_weights_comparison.png)
+### Conditional volatility models track the regimes
+
+EWMA, GARCH, and GJR-GARCH all spike through the COVID and 2022 stress windows. That responsiveness is what lets the filtered VaR adapt.
+
+![Conditional volatility models](figures/phase2b_01_cond_vol_training.png)
+
+### Mean-CVaR optimization cut tail risk, with a caveat worth stating
+
+Implementing the Rockafellar and Uryasev linear program in `cvxpy` reduced in-sample 95% CVaR from 19.0% to 3.0%. The optimizer achieved this by concentrating into low-CVaR defensive assets (roughly 20% each into TLT, GLD, and the AAPL and UUP block). That concentration then hurt in the actual 2022 scenario: the CVaR-optimal portfolio returned -15.4% against the equal-weight portfolio's -11.2%, because long-duration Treasuries were themselves a primary casualty of the rate shock. This is a clean illustration of why a corner solution that minimizes a historical risk metric is not the same as a portfolio that survives the next specific shock, and why real mandates impose concentration limits.
+
+![CVaR-optimal versus equal weights](figures/phase6_01_weights_comparison.png)
 
 ---
 
-## Methodology & academic references
+## Methodology and academic references
 
-Each component implements a specific paper. Listed below is the paper, what was implemented, and — where measurable — what it produced on this portfolio, including limitations.
+Each component implements a specific paper. For each, this lists the paper, what was built, and where measurable, what it produced on this portfolio.
 
-**Static VaR / CVaR / Expected Shortfall — Basel III / FRTB (2019).** Computed 95%/99% VaR three ways (Historical, Parametric via the cross-asset covariance matrix, and Monte Carlo via Cholesky decomposition), plus Expected Shortfall at the 97.5% FRTB standard. The three methods diverge exactly where their assumptions do — Parametric understates tails, Historical assumes the past distribution recurs.
+**Static VaR, CVaR, Expected Shortfall (Basel III / FRTB, 2019).** Computed 95% and 99% VaR three ways: Historical, Parametric via the cross-asset covariance matrix, and Monte Carlo via Cholesky decomposition. Added Expected Shortfall at the 97.5% FRTB standard. The three methods diverge exactly where their assumptions do, which the comparison makes visible.
 
-**Filtered Historical Simulation — Barone-Adesi, Giannopoulos & Vosper (1998).** Standardized historical returns by their conditional volatility, then rescaled by today's volatility forecast. This is the mechanism that lets VaR keep empirical fat tails *and* react to the current regime — the reason the dynamic models pass Kupiec where static fails.
+**Filtered Historical Simulation (Barone-Adesi, Giannopoulos & Vosper, 1998).** Standardized historical returns by their conditional volatility, then rescaled by the current volatility forecast. This is the mechanism that lets VaR keep the empirical fat tails from history while reacting to today's regime, and it is why the dynamic models pass Kupiec where the static one fails.
 
-**Conditional volatility — Engle (1982) [ARCH] and Glosten, Jagannathan & Runkle (1993) [GJR-GARCH].** Implemented EWMA (RiskMetrics λ=0.94), symmetric GARCH(1,1), and the asymmetric GJR-GARCH via the `arch` library. On this equity portfolio the GJR leverage term (γ) was statistically significant (likelihood-ratio test p ≈ 0.0008), confirming that negative shocks raise volatility more than positive ones. *Note on naming:* the dashboard labels the asymmetric model "T-GARCH" as shorthand; the model actually implemented (`arch_model(..., o=1)`) is GJR-GARCH, which is the correct attribution.
+**Conditional volatility (Engle, 1982 for ARCH; Glosten, Jagannathan & Runkle, 1993 for GJR-GARCH).** Implemented EWMA (RiskMetrics, lambda = 0.94), symmetric GARCH(1,1), and asymmetric GJR-GARCH via the `arch` library. The GJR leverage term was statistically significant on this portfolio (likelihood-ratio test, p = 0.0008), confirming that negative shocks raise volatility more than positive ones. Naming note: the dashboard labels this model "T-GARCH" as shorthand, but the model implemented (`arch_model(..., o=1)`) is GJR-GARCH, which is the correct citation.
 
-**VaR backtesting — Kupiec (1995) and Christoffersen (1998).** Kupiec's proportion-of-failures test checks whether the breach *count* is consistent with the VaR level; Christoffersen's test checks whether breaches are independent (not clustered). Running both across all four models turned validation into a model-comparison exercise — the central result above.
+**VaR backtesting (Kupiec, 1995; Christoffersen, 1998).** Kupiec's proportion-of-failures test checks whether the breach count is consistent with the VaR level. Christoffersen's test checks whether breaches are independent rather than clustered. Running both across all four models turned validation into a model-comparison exercise and surfaced the GJR clustering result above.
 
-**Mean-CVaR optimization — Rockafellar & Uryasev (2000).** Implemented their CVaR-minimization linear program from scratch in `cvxpy` rather than calling a black-box optimizer. Result and limitation stated in Key Results — a large in-sample CVaR reduction that concentrated into defensives and underperformed equal-weight in the 2022 duration shock.
+**Mean-CVaR optimization (Rockafellar & Uryasev, 2000).** Implemented their CVaR-minimization linear program directly in `cvxpy` rather than calling a black-box optimizer. Result and its limitation are stated in Key Results: a large in-sample CVaR reduction that concentrated into defensives and underperformed equal-weight in the 2022 duration shock.
 
-**Macro linkage — Ang & Piazzesi (2003).** Regressed portfolio returns on changes in the Fed Funds rate, CPI, the 10Y yield, and the IG credit spread (R² ≈ 0.49). The resulting sensitivity table ("a +100bp move in the 10Y costs the portfolio ≈4.7%") is the kind of one-line answer a CIO actually asks for. Out-of-sample on 2022, the regression predicted the direction of the loss correctly.
-
-**CVaR optimization scale note — NVIDIA quantitative-finance blueprint (2024).** NVIDIA's reference implementation uses GPU-accelerated `cuOpt` at ~400-stock institutional scale; this project implements the identical Rockafellar–Uryasev formulation in `cvxpy` at 18-stock scale — same mathematics, CPU-appropriate tooling for the size. Stated plainly rather than overclaimed.
+**Macro linkage (Ang & Piazzesi, 2003).** Regressed portfolio returns on changes in the Fed Funds rate, CPI, the 10Y yield, and the IG credit spread (R-squared = 0.49). The resulting sensitivity table (a +100bp move in the 10Y costs the portfolio about 4.7%) is the one-line answer a CIO actually asks for. Out-of-sample on 2022, the regression called the direction of the loss correctly.
 
 ---
 
 ## Tech stack
 
 **Language:** Python
-**Risk & stats:** NumPy, pandas, SciPy, statsmodels, `arch` (GARCH family)
-**Optimization:** cvxpy (Rockafellar–Uryasev LP)
-**Data:** Tiingo (prices), FRED API (macro series)
-**Storage / reporting:** SQLite (window-function risk queries)
+**Risk and stats:** NumPy, pandas, SciPy, statsmodels, `arch` (GARCH family)
+**Optimization:** cvxpy (Rockafellar-Uryasev LP)
+**Data:** Tiingo (prices), FRED (macro series)
+**Storage and reporting:** SQLite (window-function risk queries)
 **Visualization:** Plotly (interactive), Matplotlib (static)
 **App:** Streamlit, deployed on Streamlit Community Cloud
+
+---
+
+## Running it locally
+
+```bash
+git clone https://github.com/BoopeshMohanraj/Dynamic-Var-stress-testing-engine.git
+cd Dynamic-Var-stress-testing-engine
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
+
+The dashboard reads the pre-computed outputs already committed to `data/` and `results/`, so it runs immediately with no API keys required.
 
 ---
 
@@ -95,22 +118,23 @@ Each component implements a specific paper. Listed below is the paper, what was 
 ```
 streamlit_app.py     Live dashboard (9 panels)
 data/                Prices, returns, covariance matrices, macro series
-results/             VaR, backtest, stress, optimization, and macro outputs + SQLite DB
-plots/               Selected result visualizations
+results/             VaR, backtest, stress, optimization, and macro outputs, plus SQLite DB
+figures/             Selected result visualizations
 requirements.txt     Dependencies
 ```
 
 ---
 
-## Data & limitations
+## Data and limitations
 
-Honest limitations, because a risk professional who oversells a model is a liability:
+Stated plainly, because a risk professional who oversells a model is a liability:
 
-- **Survivorship bias** — the equity universe uses currently-listed tickers, excluding delisted names.
-- **CVaR corner solution** — the unconstrained optimizer concentrates into defensives; realistic mandates would impose position/sector limits (partially modeled here at 20%/35%).
-- **Single-scenario stress** — historical replays (COVID, 2022) are informative but are not a substitute for a full forward scenario distribution.
-- **GARCH parameter drift** — the leverage parameter is estimated from history and shifts over time; rolling re-estimation only partially addresses this.
-- **EVT excluded** — Extreme Value Theory tail-fitting was scoped out as beyond the level of this project; noted as a natural extension.
+- **Survivorship bias.** The equity universe uses currently-listed tickers, which excludes delisted names.
+- **CVaR corner solution.** The optimizer concentrates into defensives; realistic mandates would impose tighter position and sector limits than the 20% and 35% caps modeled here.
+- **Single-scenario stress.** Historical replays of COVID and 2022 are informative but are not a substitute for a full forward scenario distribution.
+- **GARCH parameter drift.** The leverage parameter is estimated from history and shifts over time; rolling re-estimation only partially addresses this.
+- **EVT excluded.** Extreme Value Theory tail-fitting was scoped out as beyond the level of this project and is noted as a natural extension.
 
 ---
- Data sourced from public APIs (Tiingo, FRED). This is a research and educational project, not investment advice.*
+
+* Data from public APIs (Tiingo, FRED) *
