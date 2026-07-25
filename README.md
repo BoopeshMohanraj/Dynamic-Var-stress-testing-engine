@@ -1,4 +1,4 @@
-# Portfolio Risk, Stress Testing & Macro Scenario Engine
+# Dynamic Var Stress Testing & Macro Scenario Engine
 
 A market-risk engine that measures portfolio risk, backtests it honestly against out-of-sample data, and stress-tests it through real historical shocks. Built in Python and deployed as a live interactive dashboard.
 
@@ -29,7 +29,7 @@ Every figure below is computed from the code in this repo and reproduced live in
 
 ### Static VaR fails through regime shifts; dynamic VaR holds
 
-Using a walk-forward design (calibrate on 2017 to 2020, test 2021; recalibrate on 2017 to 2021, test 2022), static Historical-Simulation VaR failed the Kupiec backtest in both out-of-sample years. All three Filtered-Historical-Simulation models passed in both:
+Using a walk-forward design (calibrate on 2017 to 2020, test 2021; recalibrate on 2017 to 2021, test 2022), **static Historical-Simulation VaR failed the Kupiec backtest in both out-of-sample years, while all three Filtered-Historical-Simulation models passed in both:**
 
 | Model | 2021 breach rate | 2022 breach rate | Kupiec result |
 |---|---|---|---|
@@ -42,7 +42,7 @@ The target breach rate for a 95% VaR is 5%. The honest reading is not that one d
 
 ![Walk-forward Kupiec backtest across all four models](figures/phase8_01_kupiec_walkforward.png)
 
-A second backtest sharpens this. The Christoffersen independence test checks whether breaches cluster, since a model can have the right breach *count* yet still fail if all its misses bunch together in the crisis. In 2022, GARCH and EWMA produced independent breaches, but GJR-GARCH failed the independence test (p = 0.03) as its breaches clustered during the drawdown. So the model with the strongest theoretical story for equities was not the best-behaved one in this specific stress window. That is the reason to run more than one test.
+A second backtest sharpens this. The Christoffersen independence test checks whether breaches cluster, since a model can have the right breach *count* yet still fail if all its misses bunch together in the crisis. In 2022, GARCH and EWMA produced independent breaches, but **GJR-GARCH failed the independence test (p = 0.03)** as its breaches clustered during the drawdown. So the model with the strongest theoretical story for equities was not the best-behaved one in this specific stress window. That is the reason to run more than one test.
 
 ### The models work day by day, not just on average
 
@@ -52,7 +52,7 @@ Plotting 2022's actual daily losses against all four VaR thresholds shows the dy
 
 ### Diversification assumptions broke in 2022, and the engine captures it
 
-The equity-to-bond (TLT) correlation, reliably negative for decades, flipped positive during the 2022 rate shock as stocks and bonds fell together. A risk model resting on a stable historical correlation would have understated portfolio risk at precisely the wrong time.
+The equity-to-bond (TLT) correlation, reliably negative for decades, **flipped positive during the 2022 rate shock** as stocks and bonds fell together. A risk model resting on a stable historical correlation would have understated portfolio risk at precisely the wrong time.
 
 ![Cross-asset correlation regime shift](figures/phase3_05_correlation_regimes.png)
 
@@ -64,7 +64,7 @@ EWMA, GARCH, and GJR-GARCH all spike through the COVID and 2022 stress windows. 
 
 ### Mean-CVaR optimization cut tail risk, with a caveat worth stating
 
-Implementing the Rockafellar and Uryasev linear program in `cvxpy` reduced in-sample 95% CVaR from 19.0% to 3.0%. The optimizer achieved this by concentrating into low-CVaR defensive assets (roughly 20% each into TLT, GLD, and the AAPL and UUP block). That concentration then hurt in the actual 2022 scenario: the CVaR-optimal portfolio returned -15.4% against the equal-weight portfolio's -11.2%, because long-duration Treasuries were themselves a primary casualty of the rate shock. This is a clean illustration of why a corner solution that minimizes a historical risk metric is not the same as a portfolio that survives the next specific shock, and why real mandates impose concentration limits.
+Implementing the Rockafellar and Uryasev linear program in `cvxpy` **reduced in-sample 95% CVaR from 19.0% to 3.0%.** The optimizer achieved this by concentrating into low-CVaR defensive assets (roughly 20% each into TLT, GLD, and the AAPL and UUP block). That concentration then hurt in the actual 2022 scenario: the **CVaR-optimal portfolio returned -15.4% against the equal-weight portfolio's -11.2%**, because long-duration Treasuries were themselves a primary casualty of the rate shock. This is a clean illustration of why a corner solution that minimizes a historical risk metric is not the same as a portfolio that survives the next specific shock, and why real mandates impose concentration limits.
 
 ![CVaR-optimal versus equal weights](figures/phase6_01_weights_comparison.png)
 
@@ -72,31 +72,58 @@ Implementing the Rockafellar and Uryasev linear program in `cvxpy` reduced in-sa
 
 ## Methodology and academic references
 
-Each component implements a specific paper. For each, this lists the paper, what was built, and where measurable, what it produced on this portfolio.
+Each component implements a specific paper. For each: what the paper gives, what I built, and what it produced here.
 
-**Static VaR, CVaR, Expected Shortfall (Basel III / FRTB, 2019).** Computed 95% and 99% VaR three ways: Historical, Parametric via the cross-asset covariance matrix, and Monte Carlo via Cholesky decomposition. Added Expected Shortfall at the 97.5% FRTB standard. The three methods diverge exactly where their assumptions do, which the comparison makes visible.
+### Static VaR, CVaR, Expected Shortfall
+*Basel III / FRTB (2019)*
 
-**Filtered Historical Simulation (Barone-Adesi, Giannopoulos & Vosper, 1998).** Standardized historical returns by their conditional volatility, then rescaled by the current volatility forecast. This is the mechanism that lets VaR keep the empirical fat tails from history while reacting to today's regime, and it is why the dynamic models pass Kupiec where the static one fails.
+- **Built:** 95% and 99% VaR three ways (Historical, Parametric via the cross-asset covariance matrix, Monte Carlo via Cholesky decomposition), plus Expected Shortfall at the 97.5% FRTB standard.
+- **Result:** the three methods diverge exactly where their assumptions do, which the side-by-side comparison makes visible.
 
-**Conditional volatility (Engle, 1982 for ARCH; Glosten, Jagannathan & Runkle, 1993 for GJR-GARCH).** Implemented EWMA (RiskMetrics, lambda = 0.94), symmetric GARCH(1,1), and asymmetric GJR-GARCH via the `arch` library. The GJR leverage term was statistically significant on this portfolio (likelihood-ratio test, p = 0.0008), confirming that negative shocks raise volatility more than positive ones. Naming note: the dashboard labels this model "T-GARCH" as shorthand, but the model implemented (`arch_model(..., o=1)`) is GJR-GARCH, which is the correct citation.
+### Filtered Historical Simulation
+*Barone-Adesi, Giannopoulos & Vosper (1998)*
 
-**VaR backtesting (Kupiec, 1995; Christoffersen, 1998).** Kupiec's proportion-of-failures test checks whether the breach count is consistent with the VaR level. Christoffersen's test checks whether breaches are independent rather than clustered. Running both across all four models turned validation into a model-comparison exercise and surfaced the GJR clustering result above.
+- **Built:** standardized historical returns by their conditional volatility, then rescaled by the current volatility forecast.
+- **Why it matters:** keeps the empirical fat tails from history while reacting to today's regime. This is the mechanism behind the dynamic models passing Kupiec where the static one fails.
 
-**Mean-CVaR optimization (Rockafellar & Uryasev, 2000).** Implemented their CVaR-minimization linear program directly in `cvxpy` rather than calling a black-box optimizer. Result and its limitation are stated in Key Results: a large in-sample CVaR reduction that concentrated into defensives and underperformed equal-weight in the 2022 duration shock.
+### Conditional volatility
+*Engle (1982) for ARCH; Glosten, Jagannathan & Runkle (1993) for GJR-GARCH*
 
-**Macro linkage (Ang & Piazzesi, 2003).** Regressed portfolio returns on changes in the Fed Funds rate, CPI, the 10Y yield, and the IG credit spread (R-squared = 0.49). The resulting sensitivity table (a +100bp move in the 10Y costs the portfolio about 4.7%) is the one-line answer a CIO actually asks for. Out-of-sample on 2022, the regression called the direction of the loss correctly.
+- **Built:** EWMA (RiskMetrics, lambda = 0.94), symmetric GARCH(1,1), and asymmetric GJR-GARCH via the `arch` library.
+- **Result:** the GJR leverage term was statistically significant (likelihood-ratio test, p = 0.0008), confirming that negative shocks raise volatility more than positive ones.
+- **Naming note:** the dashboard labels this model "T-GARCH" as shorthand, but the model implemented (`arch_model(..., o=1)`) is GJR-GARCH, which is the correct citation.
+
+### VaR backtesting
+*Kupiec (1995) and Christoffersen (1998)*
+
+- **Built:** Kupiec's proportion-of-failures test (is the breach count consistent with the VaR level?) and Christoffersen's independence test (are breaches clustered?), run across all four models.
+- **Result:** turned validation into a model-comparison exercise, and surfaced the GJR breach-clustering result noted above.
+
+### Mean-CVaR optimization
+*Rockafellar & Uryasev (2000)*
+
+- **Built:** their CVaR-minimization linear program, written directly in `cvxpy` rather than a black-box optimizer.
+- **Result and caveat:** cut in-sample 95% CVaR from 19.0% to 3.0%, but concentrated into defensives and underperformed equal-weight in the 2022 duration shock (detailed in Key Results).
+
+### Macro linkage
+*Ang & Piazzesi (2003)*
+
+- **Built:** regressed portfolio returns on changes in the Fed Funds rate, CPI, the 10Y yield, and the IG credit spread (R-squared = 0.49).
+- **Result:** produced a sensitivity table (a +100bp move in the 10Y costs the portfolio about 4.7%), the one-line answer a CIO asks for. Out-of-sample on 2022, it called the direction of the loss correctly.
 
 ---
 
 ## Tech stack
 
-**Language:** Python
-**Risk and stats:** NumPy, pandas, SciPy, statsmodels, `arch` (GARCH family)
-**Optimization:** cvxpy (Rockafellar-Uryasev LP)
-**Data:** Tiingo (prices), FRED (macro series)
-**Storage and reporting:** SQLite (window-function risk queries)
-**Visualization:** Plotly (interactive), Matplotlib (static)
-**App:** Streamlit, deployed on Streamlit Community Cloud
+| Layer | Tools |
+|---|---|
+| **Language** | Python |
+| **Risk & stats** | NumPy, pandas, SciPy, statsmodels, `arch` (GARCH family) |
+| **Optimization** | cvxpy (Rockafellar-Uryasev LP) |
+| **Data** | Tiingo (prices), FRED (macro series) |
+| **Storage & reporting** | SQLite (window-function risk queries) |
+| **Visualization** | Plotly (interactive), Matplotlib (static) |
+| **App** | Streamlit, deployed on Streamlit Community Cloud |
 
 ---
 
