@@ -4,7 +4,7 @@
 
 🔗 **[Live dashboard →](https://dynamic-var-stress-testing-engine-rk3qwtdff5nyyftrtqsfla.streamlit.app/)**
 
-*Boopesh Mohanraj · MS Engineering Management, Northeastern University*
+*Boopesh Mohanraj*
 
 ---
 
