@@ -1,6 +1,6 @@
 # Portfolio Risk, Stress Testing & Macro Scenario Engine
 
-**A production-style market-risk engine that measures portfolio risk, backtests it honestly, and stress-tests it against real historical shocks — built in Python, deployed as a live interactive dashboard.**
+**A production-style market-risk engine that measures portfolio risk, backtests it honestly, and stress-tests it against real historical shocks built in Python, deployed as a live interactive dashboard.**
 
 🔗 **[Live dashboard →](https://dynamic-var-stress-testing-engine-rk3qwtdff5nyyftrtqsfla.streamlit.app/)**
 
